@@ -11,12 +11,11 @@ import os
 from sys import platform
 import subprocess
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
 class Queue:
-	def __init__(self,jobs = []):
+	def __init__(self,jobs = {}):
 		self.jobs = jobs
-		self.execute = {}
+		self.output = {}
 		if platform == "linux" or platform == "linux2" or platform == "darwin":
 			self.prefix = "./"
 			self.suffix = ".sh"
@@ -25,16 +24,16 @@ class Queue:
 			self.suffix = ".bat"
 
 	def start(self):
-		for i,job in enumerate(self.jobs):
+		for key,job in self.jobs.iteritems():
 			if os.path.isfile(job):
-				process = subprocess.Popen(self.prefix+name,stdout=subprocess.PIPE)
-				self.execute[job] = process.stdout.readlines()
+				process = subprocess.Popen(self.prefix+job,stdout=subprocess.PIPE)
+				self.output[key] = "".join(i.rstrip() + "\n" for i in process.stdout.readlines())
 			else:
-				name = "temp"+str(i)+self.suffix
+				name = key+self.suffix
 				with open(name,"w+") as f:
 					f.write(job)
 				process = subprocess.Popen(self.prefix+name,stdout=subprocess.PIPE)
-				self.execute[name] = process.stdout.readlines()
+				self.output[key] = "".join(i.rstrip() + "\n" for i in process.stdout.readlines())
 				os.remove(name)
 
 
