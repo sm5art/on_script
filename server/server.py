@@ -4,14 +4,14 @@ import tornado.ioloop
 import os
 import json
 
+DIR = "../stored_scripts/"
 
-bradberry = {}
 class SocketHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
         return True
 
     def open(self):
-        self.write_message(json.dumps(bradberry))
+        init(self)
 
     def on_close(self):
         print "closed"
@@ -29,10 +29,18 @@ def make_server():
 		static_path= os.path.join(os.path.dirname(os.path.realpath(__file__)), "static")
 		)
 
-def main(worker=None):
-	global bradberry
-	bradberry = dict(worker.output)
+def main():
 	server = make_server()
 	server.listen(8888)
 	tornado.ioloop.IOLoop.current().start()
 	
+def init(soc):
+	pkg = {}
+	for filename in os.listdir(DIR):
+		with open(DIR+filename) as f:
+			lines = f.readlines()
+			pkg[filename]={"length":len(lines),"src":[i.strip("\n") for i in lines]}
+	print pkg
+	soc.write_message(json.dumps(pkg))
+
+
