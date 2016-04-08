@@ -17,15 +17,15 @@ class Queue:
 		self.jobs = jobs
 		self.output = {}
 		if platform == "linux" or platform == "linux2" or platform == "darwin":
-			self.prefix = "./"
+			self.prefix = "./" + os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)) + "/stored_scripts/"
 			self.suffix = ".sh"
 		elif platform == "win32":
-			self.prefix = ""
+			self.prefix = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)) + "/stored_scripts/"
 			self.suffix = ".bat"
 
 	def start(self):
 		for key,job in self.jobs.iteritems():
-			if os.path.isfile(job):
+			if os.path.isfile(self.prefix+job):
 				process = subprocess.Popen(self.prefix+job,stdout=subprocess.PIPE)
 				self.output[key] = "".join(i.rstrip() + "\n" for i in process.stdout.readlines())
 			else:
