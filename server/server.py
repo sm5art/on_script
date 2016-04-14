@@ -28,7 +28,7 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-    	self.render("index.html")
+    	self.render("index.html",uri = "ws://"+self.request.host+self.request.uri+"socket")
 
 
 def make_server():
@@ -41,7 +41,7 @@ def make_server():
 
 def main():
 	server = make_server()
-	server.listen(8888)
+	server.listen(80)
 	tornado.ioloop.IOLoop.current().start()
 	
 def init(soc):

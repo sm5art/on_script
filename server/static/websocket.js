@@ -2,7 +2,7 @@ var source = {};
 var ws;
 function WebSocketTest()
 {
-    ws = new WebSocket("ws://localhost:8888/socket");
+    ws = new WebSocket(uri);
 				
    ws.onopen = function()
    {
@@ -67,7 +67,7 @@ function retrieve(name)
 {
    var content = "<div class='jumbotron'><h1>"+name+"</h1>"+'<button name="'+name+'" style="width:10%;" class="run btn btn-default" aria-hidden="true"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></div>'
     
-   content += "<div class='col-xs-11 col-sm-11'>";
+   content += "<div id='source' class='col-xs-11 col-sm-11'>";
    for(var i in source[name])
    {
       content += "<code style='display:block;'>"+source[name][i]+ '</code>';
@@ -85,5 +85,9 @@ ws.send(name);
 }
 
 function output(str){
-console.log(str);
+    str = str['output'];
+    for(key in str){
+$("#source").append("<blockquote><p>"+str[key]+"</p></blockquote>")
+console.log(str[key]);
+}
 }
