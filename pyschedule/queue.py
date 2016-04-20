@@ -19,28 +19,17 @@ class Queue:
 		if platform == "linux" or platform == "linux2" or platform == "darwin":
 			self.prefix =   os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)) + "/stored_scripts/"
 			self.suffix = ".sh"
-			print self.prefix
 		elif platform == "win32":
 			self.prefix = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)) + "/stored_scripts/"
 			self.suffix = ".bat"
 
 	def start(self):
 		for key,job in self.jobs.iteritems():
-		
+		    
 			if os.path.isfile(self.prefix+job):
-			    
-				process = subprocess.Popen("chmod +x "+self.prefix+job,stdout=subprocess.PIPE,shell=True)
-				process = subprocess.Popen("sh "+self.prefix+job,stdout=subprocess.PIPE,shell=True)
-				self.output[key] = "".join(i.rstrip() + "\n" for i in process.stdout.readlines())
-			else:
-				name = key+self.suffix
-				with open(name,"w+") as f:
-					f.write(job)
-				process = subprocess.Popen(self.prefix+name,stdout=subprocess.PIPE)
-				self.output[key] = "".join(i.rstrip() + "\n" for i in process.stdout.readlines())
-				os.remove(name)
-			
-
+				os.system("chmod 777 "+self.prefix+job)
+				lines = os.popen("sh "+self.prefix+job).readlines()
+				self.output[key] = "".join(i.rstrip() + "\n" for i in lines)
 
 				
 				

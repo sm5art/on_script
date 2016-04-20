@@ -6,8 +6,15 @@ import sys
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 import pyschedule.worker as worker
+from pymongo import MongoClient
+import datetime
+
+client = MongoClient()
+db = client.documents
 
 DIR = "../stored_scripts/"
+
+
 
 class SocketHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
@@ -15,12 +22,13 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         init(self)
+        print "opened"
 
     def on_message(self, message):
         pkg = {}
-        w1 = worker.Worker(jobs={message:message})
+        output = {message:db.output.find_one({"name":message})["output"]}
         pkg['header']="output"
-        pkg['output']=w1.output
+        pkg['output']=output
         self.write_message(json.dumps(pkg))
 
     def on_close(self):
@@ -43,15 +51,27 @@ def main():
 	server = make_server()
 	server.listen(80)
 	tornado.ioloop.IOLoop.current().start()
+
 	
 def init(soc):
 	pkg = {}
+	db.output.drop()
+	pkg["header"] = "populate"
 	for filename in os.listdir(DIR):
-		with open(DIR+filename) as f:
-			lines = f.readlines()
-			pkg['header']="populate";
-			pkg[filename]={"length":len(lines),"src":[i.strip("\n") for i in lines]}
-	
+		
+		w1 = worker.Worker(jobs={filename:filename})
+		document = {
+			"name":filename,
+			"output":w1.output[filename],
+			"date":datetime.datetime.utcnow()
+			}
+		pkg[filename]={
+		    "src":[i.strip("\n") for i in open(os.path.abspath(os.path.join(DIR,filename))).readlines()]
+		    }
+		print pkg
+		db.output.insert(document,check_keys=False)
+		
+			
 	soc.write_message(json.dumps(pkg))
 
 

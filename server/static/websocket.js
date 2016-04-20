@@ -6,7 +6,7 @@ function WebSocketTest()
 				
    ws.onopen = function()
    {
-                
+             console.log("opened");
    };
 				
    ws.onmessage = function (evt) 
@@ -63,6 +63,10 @@ $(document).on("click",".run",function()
 
 }
 
+String.prototype.replaceAll = function(target, replacement) {
+  return this.split(target).join(replacement);
+};
+
 function retrieve(name)
 {
    var content = "<div class='jumbotron'><h1>"+name+"</h1>"+'<button name="'+name+'" style="width:10%;" class="run btn btn-default" aria-hidden="true"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></div>'
@@ -86,8 +90,8 @@ ws.send(name);
 
 function output(str){
     str = str['output'];
-    for(key in str){
-$("#source").append("<blockquote><p>"+str[key]+"</p></blockquote>")
+    for(var key in str){
+$("#source").append("<blockquote><p>"+str[key].replaceAll("\n","<br>")+"</p></blockquote>")
 console.log(str[key]);
 }
 }
